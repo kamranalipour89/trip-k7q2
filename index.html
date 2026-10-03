@@ -27,7 +27,8 @@
 .tr{color:#8a5a00}
 .foot{position:absolute;bottom:.3in;left:.45in;right:.45in;font-size:8pt;color:#6b7785;border-top:1px solid #d5dce6;padding-top:6px}
 
-html{background:#e9edf3}
+html{background:#e9edf3;overflow-x:clip;-webkit-text-size-adjust:100%}
+body{overflow-x:clip}
 body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f2933}
 .tabs{position:sticky;top:0;z-index:2000;display:flex;gap:6px;justify-content:center;padding:10px;background:#1f3a5f}
 .tabs button{border:0;border-radius:999px;padding:7px 18px;font:600 13px inherit;font-family:inherit;background:transparent;color:#cfd9e8;cursor:pointer}
@@ -47,7 +48,7 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 .mapcol{position:relative}
 .map{height:100%;min-height:460px;background:#dfe6ee}
 .list{padding:6px 18px 14px;max-height:620px;overflow:auto}
-.it{display:grid;grid-template-columns:40px 1fr;gap:10px;padding:12px 0;border-bottom:1px solid #e5eaf1;cursor:pointer}
+.it{display:grid;grid-template-columns:40px minmax(0,1fr);gap:10px;padding:12px 0;border-bottom:1px solid #e5eaf1;cursor:pointer}
 .it:last-child{border-bottom:0}
 .it.hl{background:#f3f7fc;margin:0 -18px;padding:12px 18px}
 .num{min-width:26px;height:26px;padding:0 4px;box-sizing:border-box;width:fit-content;border-radius:13px;background:var(--c);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center}
@@ -74,13 +75,14 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 #t3 .city{scroll-margin-top:112px}
 .badge-today{background:#fff;color:var(--c);font-weight:700;font-size:11px;padding:2px 8px;border-radius:999px;margin-left:8px}
 .chips.days a small{display:block;font-size:10px;font-weight:600;opacity:.8}
-.city.nomap .cbody{grid-template-columns:1fr}
+.city.nomap .cbody{grid-template-columns:minmax(0,1fr)}
 .city .sub{font-size:13px;opacity:.95;padding:0 20px 10px;background:var(--c);color:#fff;margin-top:-1px}
 .pin.stay{background:#2b2f36;font-size:12px}
 .pin.food{background:#e07b1a;border-radius:7px}
 .num.food{background:#e07b1a;border-radius:7px}
 .empty{padding:16px 0;color:#6b7785;font-size:13px}
 .gh{margin:14px 0 0;padding:7px 10px;background:#eef2f7;border-left:4px solid var(--c);font-weight:700;font-size:13px;color:#1f3a5f;border-radius:4px}
+.it h3,.when,.loc,.note,.tags,.bul,.bul li,.gh,.banner,.foot2{overflow-wrap:anywhere}
 .bul{margin:6px 0 0;padding-left:18px;font-size:12.5px;color:#323f4b}
 .bul li{margin:1px 0}
 .bul a,.pl a{color:#2a6f97}
@@ -91,8 +93,9 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 .banner{background:#fff7e0;border:1px solid #f0dca0;color:#6b5200;border-radius:8px;padding:8px 12px;font-size:13px;margin:0 0 12px}
 @media(max-width:860px){
   .chips.days{margin:0 -12px 12px;padding:8px 12px;top:48px}
-  .cbody{grid-template-columns:1fr}
+  .cbody{grid-template-columns:minmax(0,1fr)}
   .city{overflow:visible}
+  .city,.mapcol,.list,.dwrap{min-width:0;max-width:100%}
   .city>h2{border-radius:12px 12px 0 0}
   .mapcol{position:sticky;top:48px;z-index:600;box-shadow:0 4px 10px rgba(20,40,70,.18)}
   .map{height:40vh;min-height:230px}
@@ -102,7 +105,7 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 @media(max-width:860px){
   #t1{padding:0}
   #t1 .page{width:100%;height:auto;overflow:visible;box-shadow:none}
-  #t1 .wrap{grid-template-columns:1fr;padding:14px 14px 0;gap:12px}
+  #t1 .wrap{grid-template-columns:minmax(0,1fr);padding:14px 14px 0;gap:12px}
   #t1 .card.wide{grid-column:auto}
   #t1 .hdr{padding:22px 16px 18px}
   #t1 .hdr h1{font-size:22pt}
