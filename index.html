@@ -333,11 +333,47 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.map').forEach(el => initMap(byId[el.dataset.c]));
 }
 
+
+// scroll-spy: as the list scrolls, highlight the item at the reading line and keep its pin in view
+const mobileMQ = window.matchMedia ? window.matchMedia('(max-width:860px)') : {matches:false};
+let spyQueued = false, lastActive = {};
+function spy(){
+  spyQueued = false;
+  document.querySelectorAll('.tab.on .city').forEach(sec => {
+    const cid = sec.id.slice(2), m = maps[cid];
+    if (!m) return;
+    const sr = sec.getBoundingClientRect();
+    if (sr.bottom < 0 || sr.top > window.innerHeight) return;
+    const list = document.getElementById('l-' + cid), mapcol = sec.querySelector('.mapcol');
+    if (!list || !mapcol) return;
+    const refY = mobileMQ.matches ? mapcol.getBoundingClientRect().bottom + 24 : list.getBoundingClientRect().top + 30;
+    if (sr.bottom < refY) return;
+    const rows = list.querySelectorAll('.it');
+    let hit = null;
+    for (const r of rows) { if (r.getBoundingClientRect().bottom > refY) { hit = r; break; } }
+    if (!hit) return;
+    const i = +hit.dataset.i;
+    if (lastActive[cid] === i) return;
+    lastActive[cid] = i;
+    rows.forEach(r => r.classList.toggle('hl', r === hit));
+    sec.querySelectorAll('.pin').forEach(el => el.classList.remove('hl'));
+    const mk = m._markers && m._markers[i];
+    if (!mk) return;
+    const el = mk.getElement(); if (el && el.querySelector('.pin')) el.querySelector('.pin').classList.add('hl');
+    if (!m.getBounds().pad(-0.2).contains(mk.getLatLng())) m.panTo(mk.getLatLng(), {animate:true, duration:.5});
+  });
+}
+function queueSpy(){ if (!spyQueued) { spyQueued = true; requestAnimationFrame(spy); } }
+window.addEventListener('scroll', queueSpy, {passive:true});
+document.querySelectorAll('.list').forEach(l => l.addEventListener('scroll', queueSpy, {passive:true}));
+
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === id));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
   document.body.className = {t1:'p1', t2:'p2', t3:'p3'}[id];
   window.scrollTo(0, 0);
+  lastActive = {};
+  setTimeout(queueSpy, 400);
   history.replaceState(null, '', {t1:'#overview', t2:'#cities', t3:'#days'}[id]);
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => showTab(b.dataset.t));
