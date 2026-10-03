@@ -70,6 +70,9 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 .chips.days{flex-wrap:nowrap;overflow-x:auto;position:sticky;top:50px;z-index:1500;background:#e9edf3;margin:0 -20px 14px;padding:8px 20px;scrollbar-width:none}
 .chips.days::-webkit-scrollbar{display:none}
 .chips.days a{flex:none;text-align:center;line-height:1.15;padding:5px 11px}
+.chips.days a.today{background:var(--c);color:#fff}
+#t3 .city{scroll-margin-top:112px}
+.badge-today{background:#fff;color:var(--c);font-weight:700;font-size:11px;padding:2px 8px;border-radius:999px;margin-left:8px}
 .chips.days a small{display:block;font-size:10px;font-weight:600;opacity:.8}
 .city.nomap .cbody{grid-template-columns:1fr}
 .city .sub{font-size:13px;opacity:.95;padding:0 20px 10px;background:var(--c);color:#fff;margin-top:-1px}
@@ -383,5 +386,27 @@ document.querySelectorAll('[data-go]').forEach(a => a.onclick = ev => {
 window.addEventListener('resize', () => Object.values(maps).forEach(m => { m.invalidateSize(); }));
 if (location.hash === '#cities' || location.hash === '#details') showTab('t2');
 if (location.hash === '#overview') showTab('t1');
+
+// open on today's date when the trip is under way
+function todayKey(){
+  const q = new URLSearchParams(location.search).get('today');
+  if (q && /^\d{4}-\d{2}-\d{2}$/.test(q)) return q;
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+const tk = todayKey();
+const todayId = (tk >= '2026-10-06' && tk <= '2026-10-20') ? 'd' + tk.slice(5, 7) + tk.slice(8, 10) : null;
+if (todayId && document.getElementById('c-' + todayId)) {
+  const chip = document.querySelector(`#dchips a[data-go="${todayId}"]`);
+  if (chip) chip.classList.add('today');
+  const h2 = document.querySelector(`#c-${todayId} > h2`);
+  if (h2) h2.insertAdjacentHTML('afterbegin', '<span class="badge-today">Today</span>');
+  const jump = () => {
+    if (!document.getElementById('t3').classList.contains('on')) return;
+    if (chip) { const bar = document.getElementById('dchips'); bar.scrollLeft = chip.offsetLeft - bar.clientWidth / 2 + chip.clientWidth / 2; }
+    document.getElementById('c-' + todayId).scrollIntoView({block: 'start'});
+  };
+  if (!location.hash || location.hash === '#days') { setTimeout(jump, 150); window.addEventListener('load', () => setTimeout(jump, 300)); }
+}
 setTimeout(() => { if (typeof L === 'undefined') document.querySelectorAll('.maperr').forEach(e => e.style.display = 'flex'); }, 3000);
 </script></body></html>
