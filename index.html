@@ -99,9 +99,11 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
   .city,.mapcol,.list,.dwrap{min-width:0;max-width:100%}
   .city>h2{border-radius:12px 12px 0 0}
   .mapcol{position:sticky;top:48px;z-index:600;box-shadow:0 4px 10px rgba(20,40,70,.18)}
-  .map{height:40vh;min-height:230px}
+  .mapcol{height:max(24vh,150px)}
+  .map{position:absolute;top:0;left:0;right:0;height:100%;min-height:0;transition:height .25s ease}
+  .mapcol.big .map{height:max(60vh,360px);box-shadow:0 12px 26px rgba(0,0,0,.3)}
   .list{max-height:none;overflow:visible}
-  .it{scroll-margin-top:calc(48px + 40vh + 12px)}
+  .it{scroll-margin-top:calc(48px + max(24vh,150px) + 12px)}
 }
 @media(max-width:860px){
   #t1{padding:0}
@@ -392,6 +394,25 @@ function queueSpy(){ if (!spyQueued) { spyQueued = true; requestAnimationFrame(s
 window.addEventListener('scroll', queueSpy, {passive:true});
 document.querySelectorAll('.list').forEach(l => l.addEventListener('scroll', queueSpy, {passive:true}));
 setTimeout(queueSpy, 600);
+
+// phones: the pinned map stays short while reading; it grows only while it is being used
+let bigId = null, bigY = 0, bigTimer = null;
+function setBig(cid, on){
+  const sec = document.getElementById('c-' + cid), col = sec && sec.querySelector('.mapcol');
+  if (!col || !mobileMQ.matches) return;
+  col.classList.toggle('big', on);
+  const m = maps[cid];
+  if (m) { const t = () => m.invalidateSize({pan:false}); setTimeout(t, 60); setTimeout(t, 320); }
+  clearTimeout(bigTimer);
+  if (on) { bigId = cid; bigY = window.scrollY; bigTimer = setTimeout(() => setBig(cid, false), 7000); }
+  else if (bigId === cid) bigId = null;
+}
+document.addEventListener('pointerdown', e => {
+  const col = e.target.closest && e.target.closest('.mapcol');
+  if (col) { const sec = col.closest('.city'); if (sec) { if (bigId && bigId !== sec.id.slice(2)) setBig(bigId, false); setBig(sec.id.slice(2), true); } }
+  else if (bigId) setBig(bigId, false);
+}, true);
+window.addEventListener('scroll', () => { if (bigId && Math.abs(window.scrollY - bigY) > 20) setBig(bigId, false); }, {passive:true});
 
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === id));
