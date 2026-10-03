@@ -71,7 +71,8 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 .chips.days{flex-wrap:nowrap;overflow-x:auto;position:sticky;top:50px;z-index:1500;background:#e9edf3;margin:0 -20px 14px;padding:8px 20px;scrollbar-width:none}
 .chips.days::-webkit-scrollbar{display:none}
 .chips.days a{flex:none;text-align:center;line-height:1.15;padding:5px 11px}
-.chips.days a.today{background:var(--c);color:#fff}
+.chips a.active{background:var(--c);color:#fff}
+.chips.days a.today{border-width:3px;padding:3px 9px}
 #t3 .city{scroll-margin-top:112px}
 .badge-today{background:#fff;color:var(--c);font-weight:700;font-size:11px;padding:2px 8px;border-radius:999px;margin-left:8px}
 .chips.days a small{display:block;font-size:10px;font-weight:600;opacity:.8}
@@ -343,8 +344,26 @@ if ('IntersectionObserver' in window) {
 // scroll-spy: as the list scrolls, highlight the item at the reading line and keep its pin in view
 const mobileMQ = window.matchMedia ? window.matchMedia('(max-width:860px)') : {matches:false};
 let spyQueued = false, lastActive = {};
+let lastChip = null;
+function updateChips(){
+  const tab = document.querySelector('.tab.on');
+  if (!tab || tab.id === 't1') return;
+  const bar = tab.querySelector('.chips'), secs = tab.querySelectorAll('.city');
+  if (!bar || !secs.length) return;
+  const ref = bar.getBoundingClientRect().bottom + 16;
+  let cur = secs[0];
+  secs.forEach(sec => { if (sec.getBoundingClientRect().top <= ref) cur = sec; });
+  const id = cur.id.slice(2);
+  if (lastChip === tab.id + id) return;
+  lastChip = tab.id + id;
+  let target = null;
+  bar.querySelectorAll('a').forEach(a => { const on = a.dataset.go === id; a.classList.toggle('active', on); if (on) target = a; });
+  if (target && bar.scrollWidth > bar.clientWidth) bar.scrollTo({left: target.offsetLeft - bar.clientWidth / 2 + target.offsetWidth / 2, behavior: 'smooth'});
+}
+
 function spy(){
   spyQueued = false;
+  updateChips();
   document.querySelectorAll('.tab.on .city').forEach(sec => {
     const cid = sec.id.slice(2), m = maps[cid];
     if (!m) return;
@@ -372,13 +391,14 @@ function spy(){
 function queueSpy(){ if (!spyQueued) { spyQueued = true; requestAnimationFrame(spy); } }
 window.addEventListener('scroll', queueSpy, {passive:true});
 document.querySelectorAll('.list').forEach(l => l.addEventListener('scroll', queueSpy, {passive:true}));
+setTimeout(queueSpy, 600);
 
 function showTab(id){
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.id === id));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.t === id));
   document.body.className = {t1:'p1', t2:'p2', t3:'p3'}[id];
   window.scrollTo(0, 0);
-  lastActive = {};
+  lastActive = {}; lastChip = null;
   setTimeout(queueSpy, 400);
   history.replaceState(null, '', {t1:'#overview', t2:'#cities', t3:'#days'}[id]);
 }
