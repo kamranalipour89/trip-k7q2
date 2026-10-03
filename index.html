@@ -121,10 +121,10 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
   .map{min-height:380px}
 }
 @page{size:Letter;margin:0}
-</style></head><body class="p1">
-<div class="tabs"><button class="on" data-t="t1">Overview</button><button data-t="t2">Cities</button><button data-t="t3">Days</button></div>
+</style></head><body class="p3">
+<div class="tabs"><button data-t="t1">Overview</button><button data-t="t2">Cities</button><button class="on" data-t="t3">Days</button></div>
 
-<div id="t1" class="tab on"><div class="page">
+<div id="t1" class="tab"><div class="page">
 <div class="hdr"><h1>Italy Trip 2026</h1><p>October 6 to 20 &nbsp;|&nbsp; Rome &bull; Florence &bull; Venice &bull; Lake Como &bull; Rome</p></div>
 <div class="route"><span>Oct 6 &nbsp;SFO</span><span class="c">&rarr;</span><span>Rome (3 nts)</span><span class="c">&rarr;</span><span>Florence (3)</span><span class="c">&rarr;</span><span>Venice (3)</span><span class="c">&rarr;</span><span>Como (3)</span><span class="c">&rarr;</span><span>Rome (1)</span><span class="c">&rarr;</span><span>Oct 20 &nbsp;SFO</span></div>
 <div class="wrap">
@@ -176,7 +176,7 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
   <div class="foot2">This tab lists the bookings: calendar events with their full details, plus the matching lines from your Italy Itinerary note. Solid pins use the calendar's saved location; dashed pins were placed by hand from the address, so use "Open in Maps" for the exact spot. The Days tab has the full plan with restaurants, walks and ideas.</div>
 </div></div>
 
-<div id="t3" class="tab"><div class="dwrap">
+<div id="t3" class="tab on"><div class="dwrap">
   <div class="banner">From your Italy Itinerary note: <b>Detailed Itinerary: Please Book ASAP</b>. The plan below follows the note in its own order, with calendar bookings attached where they match.</div>
   <div class="chips days" id="dchips"></div>
   <div id="days"></div>
@@ -382,6 +382,6 @@ document.querySelectorAll('[data-go]').forEach(a => a.onclick = ev => {
 });
 window.addEventListener('resize', () => Object.values(maps).forEach(m => { m.invalidateSize(); }));
 if (location.hash === '#cities' || location.hash === '#details') showTab('t2');
-if (location.hash === '#days') showTab('t3');
+if (location.hash === '#overview') showTab('t1');
 setTimeout(() => { if (typeof L === 'undefined') document.querySelectorAll('.maperr').forEach(e => e.style.display = 'flex'); }, 3000);
 </script></body></html>
