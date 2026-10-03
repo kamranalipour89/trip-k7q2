@@ -66,7 +66,15 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 .pin.hl{transform:scale(1.25);z-index:999}
 .foot2{font-size:12px;color:#6b7785;margin-top:6px}
 .maperr{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:20px;color:#52606d;font-size:13px;background:#eef2f7;z-index:500}
-@media(max-width:860px){.cbody{grid-template-columns:1fr}.map{min-height:340px}.list{max-height:none}}
+@media(max-width:860px){
+  .cbody{grid-template-columns:1fr}
+  .city{overflow:visible}
+  .city>h2{border-radius:12px 12px 0 0}
+  .mapcol{position:sticky;top:48px;z-index:600;box-shadow:0 4px 10px rgba(20,40,70,.18)}
+  .map{height:40vh;min-height:230px}
+  .list{max-height:none;overflow:visible}
+  .it{scroll-margin-top:calc(48px + 40vh + 12px)}
+}
 @media(max-width:860px){
   #t1{padding:0}
   #t1 .page{width:100%;height:auto;overflow:visible;box-shadow:none}
@@ -234,6 +242,7 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => showTab
 document.querySelectorAll('[data-go]').forEach(a => a.onclick = ev => {
   ev.preventDefault(); document.getElementById('c-' + a.dataset.go).scrollIntoView({behavior:'smooth'});
 });
+window.addEventListener('resize', () => Object.values(maps).forEach(m => m.invalidateSize()));
 if (location.hash === '#details') showTab('t2');
 setTimeout(() => { if (typeof L === 'undefined') document.querySelectorAll('.maperr').forEach(e => e.style.display = 'flex'); }, 3000);
 </script></body></html>
