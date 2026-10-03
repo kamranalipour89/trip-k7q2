@@ -61,9 +61,9 @@ body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-se
 .tags{margin-top:6px;font-size:12px}
 .tags a{color:#2a6f97;text-decoration:none;font-weight:600}
 .tags span{color:#8996a6}
-.pin{width:28px;height:28px;border-radius:50%;background:var(--c);color:#fff;font:700 13px -apple-system,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.pin{min-width:28px;height:28px;padding:0 6px;box-sizing:border-box;white-space:nowrap;transform:translate(-50%,-50%);border-radius:14px;background:var(--c);color:#fff;font:700 13px -apple-system,Helvetica,Arial,sans-serif;display:flex;align-items:center;justify-content:center;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .pin.approx{border-style:dashed}
-.pin.hl{transform:scale(1.25);z-index:999}
+.pin.hl{transform:translate(-50%,-50%) scale(1.25);z-index:999}
 .foot2{font-size:12px;color:#6b7785;margin-top:6px}
 .maperr{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:20px;color:#52606d;font-size:13px;background:#eef2f7;z-index:500}
 
@@ -236,17 +236,24 @@ function initMap(c){
     maxZoom: 19,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(m);
-  const markers = {}, pts = [];
+  const markers = {}, pts = [], groups = {};
   c.items.forEach((it, i) => {
     if (!it.ll) return;
-    const icon = L.divIcon({className:'', iconSize:[28,28], iconAnchor:[14,14],
-      html:`<div class="pin ${it.approx ? 'approx' : ''}" style="--c:${c.color}">${it.n}</div>`});
-    const mk = L.marker(it.ll, {icon}).addTo(m).bindPopup(`<b>${esc(it.title)}</b><br>${esc(it.when)}`);
-    mk.on('click', () => highlight(c.id, i, false));
-    markers[i] = mk; pts.push(it.ll);
+    const k = it.ll.join(',');
+    (groups[k] = groups[k] || {ll: it.ll, idx: [], approx: it.approx}).idx.push(i);
+  });
+  Object.values(groups).forEach(g => {
+    const nums = g.idx.map(i => c.items[i].n).join(' \u00b7 ');
+    const icon = L.divIcon({className:'', iconSize:[0,0], iconAnchor:[0,0],
+      html:`<div class="pin ${g.approx ? 'approx' : ''}" style="--c:${c.color}">${nums}</div>`});
+    const pop = g.idx.map(i => `<b>${c.items[i].n}. ${esc(c.items[i].title)}</b><br>${esc(c.items[i].when || '')}`).join('<hr style="margin:6px 0;border:0;border-top:1px solid #ddd">');
+    const mk = L.marker(g.ll, {icon}).addTo(m).bindPopup(pop);
+    mk.on('click', () => highlight(c.id, g.idx[0], false));
+    g.idx.forEach(i => { markers[i] = mk; });
+    pts.push(g.ll);
   });
   if (c.stay) {
-    const icon = L.divIcon({className:'', iconSize:[28,28], iconAnchor:[14,14], html:'<div class="pin stay">H</div>'});
+    const icon = L.divIcon({className:'', iconSize:[0,0], iconAnchor:[0,0], html:'<div class="pin stay">H</div>'});
     L.marker(c.stay.ll, {icon}).addTo(m).bindPopup(`<b>Staying: ${esc(c.stay.name)}</b>`);
     pts.push(c.stay.ll);
   }
