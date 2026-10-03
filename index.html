@@ -27,8 +27,8 @@
 .tr{color:#8a5a00}
 .foot{position:absolute;bottom:.3in;left:.45in;right:.45in;font-size:8pt;color:#6b7785;border-top:1px solid #d5dce6;padding-top:6px}
 
-html{background:#e9edf3;overflow-x:clip;-webkit-text-size-adjust:100%}
-body{overflow-x:clip}
+html{background:#e9edf3;overflow-x:hidden;-webkit-text-size-adjust:100%}
+html,body{max-width:100%;touch-action:pan-y pinch-zoom}
 body{margin:0;font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,sans-serif;color:#1f2933}
 .tabs{position:sticky;top:0;z-index:2000;display:flex;gap:6px;justify-content:center;padding:10px;background:#1f3a5f}
 .tabs button{border:0;border-radius:999px;padding:7px 18px;font:600 13px inherit;font-family:inherit;background:transparent;color:#cfd9e8;cursor:pointer}
@@ -410,6 +410,22 @@ if (todayId && document.getElementById('c-' + todayId)) {
     document.getElementById('c-' + todayId).scrollIntoView({block: 'start'});
   };
   if (!location.hash || location.hash === '#days') { setTimeout(jump, 150); window.addEventListener('load', () => setTimeout(jump, 300)); }
+}
+
+// ?debug lists any element wider than the screen (for tracking down sideways scrolling)
+if (/[?&]debug\b/.test(location.search)) {
+  setTimeout(() => {
+    const W = document.documentElement.clientWidth, out = ['clientWidth=' + W + ' docScroll=' + document.documentElement.scrollWidth + ' bodyScroll=' + document.body.scrollWidth];
+    document.querySelectorAll('body *').forEach(e => {
+      const t = e.closest('.tab'); if (t && getComputedStyle(t).display === 'none') return;
+      if (e.closest('.leaflet-container')) return;
+      const r = e.getBoundingClientRect();
+      if (r.width > 0 && (r.right > W + .5 || r.left < -.5) && out.length < 25) out.push(e.tagName + '.' + (typeof e.className === 'string' ? e.className : '') + ' L=' + Math.round(r.left) + ' R=' + Math.round(r.right));
+    });
+    const p = document.createElement('pre');
+    p.style.cssText = 'position:fixed;left:0;right:0;bottom:0;max-height:45vh;overflow:auto;z-index:99999;background:#fff;color:#000;font:11px monospace;white-space:pre-wrap;margin:0;padding:6px;border-top:3px solid red';
+    p.textContent = out.join('\n'); document.body.appendChild(p);
+  }, 1500);
 }
 setTimeout(() => { if (typeof L === 'undefined') document.querySelectorAll('.maperr').forEach(e => e.style.display = 'flex'); }, 3000);
 </script></body></html>
