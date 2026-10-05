@@ -1,5 +1,5 @@
 // Offline support: keeps the page, the map library and any map tiles you have looked at (or saved) on the phone.
-const VERSION = '20261005-1456';
+const VERSION = '20261005-1523';
 const SHELL = 'trip-shell-' + VERSION;
 const TILES = 'trip-tiles-v1';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
