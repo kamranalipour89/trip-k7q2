@@ -1,8 +1,8 @@
 // Offline support: keeps the page, the map library and any map tiles you have looked at (or saved) on the phone.
-const VERSION = '20261005-1523';
+const VERSION = '20261006-1042';
 const SHELL = 'trip-shell-' + VERSION;
 const TILES = 'trip-tiles-v1';
-const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
+const CORE = ['./', 'index.html', 'places.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png',
   'leaflet/leaflet.js', 'leaflet/leaflet.css', 'leaflet/images/layers.png', 'leaflet/images/layers-2x.png',
   'leaflet/images/marker-icon.png', 'leaflet/images/marker-icon-2x.png', 'leaflet/images/marker-shadow.png'];
 
@@ -19,15 +19,16 @@ self.addEventListener('fetch', e => {
   if (url.hostname === 'tile.openstreetmap.org') { e.respondWith(tile(req)); return; }
   if (url.origin !== location.origin) return;
   if (url.pathname.endsWith('/version.txt')) return;           // always ask the network about new versions
-  if (req.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html')) { e.respondWith(page(req)); return; }
+  if (url.pathname.endsWith('/places.html')) { e.respondWith(page(req, 'places.html')); return; }
+  if (req.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('/index.html')) { e.respondWith(page(req, 'index.html')); return; }
   e.respondWith(caches.match(req, {ignoreSearch: true}).then(r => r || fetch(req)));
 });
 
 // the page: use the network when it answers quickly (so updates arrive), otherwise the saved copy
-function page(req) {
-  return caches.match('index.html').then(cached => {
+function page(req, key) {
+  return caches.match(key).then(cached => {
     const net = fetch(req).then(r => {
-      if (r && r.ok) { const cp = r.clone(); caches.open(SHELL).then(c => c.put('index.html', cp)); return r; }
+      if (r && r.ok) { const cp = r.clone(); caches.open(SHELL).then(c => c.put(key, cp)); return r; }
       if (!cached) return r;
       throw new Error('bad response');
     });
